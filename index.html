@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI科普问答小助手</title>
+    <title>免费AI对话</title>
     <style>
         *{margin:0;padding:0;box-sizing:border-box;font-family:system-ui}
         body{max-width:800px;margin:20px auto;padding:0 15px}
@@ -24,9 +24,10 @@
 </div>
 
 <script>
-// 此处填入你刚才复制的DeepSeek sk密钥
-const DS_KEY = "sk-58189c0c039448f5a9a3fd28f64b743c";
-const API = "https://api.deepseek.com/v1/chat/completions";
+//只替换引号内你的sk密钥
+const DS_KEY = "sk-f5f7c2b88c014fc6a35530a788a7f4f5";
+//公用跨域中转地址，解决CORS
+const API = "https://cors-proxy.vercel.app/https://api.deepseek.com/v1/chat/completions";
 const chatDom = document.getElementById("chat");
 const inputDom = document.getElementById("input");
 const sendBtn = document.getElementById("send");
@@ -58,7 +59,8 @@ async function chat(question){
         chatDom.lastChild.remove();
         addMsg(json.choices[0].message.content,false);
     }catch(e){
-        chatDom.lastChild.innerText="接口异常";
+        chatDom.lastChild.innerText="接口异常，检查密钥/额度";
+        console.log(e)
     }
 }
 
