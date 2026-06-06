@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI聊天助手</title>
+    <title>AI科普问答小助手</title>
     <style>
         *{margin:0;padding:0;box-sizing:border-box;font-family:system-ui}
         body{max-width:800px;margin:20px auto;padding:0 15px}
@@ -19,63 +19,56 @@
 <body>
 <div id="chat"></div>
 <div class="box">
-    <input id="input" placeholder="输入问题，回车/点发送">
+    <input id="input" placeholder="输入提问">
     <button id="send">发送</button>
 </div>
 
 <script>
-// ==========【只改这里！填入你的OpenAI sk密钥】==========
-const OPENAI_KEY = "REPLACE_YOUR_KEY_AFTER_DEPLOY";
-const API_URL = "https://api.openai.com/v1/chat/completions";
+// 此处填入你刚才复制的DeepSeek sk密钥
+const DS_KEY = "sk-58189c0c039448f5a9a3fd28f64b743c";
+const API = "https://api.deepseek.com/v1/chat/completions";
 const chatDom = document.getElementById("chat");
 const inputDom = document.getElementById("input");
 const sendBtn = document.getElementById("send");
 
-// 渲染消息
 function addMsg(text,isUser){
-    const div = document.createElement("div");
+    let div = document.createElement("div");
     div.className = `msg ${isUser?'user':'ai'}`;
     div.innerText = text;
     chatDom.appendChild(div);
     chatDom.scrollTop = chatDom.scrollHeight;
 }
 
-// 请求GPT
-async function askGPT(question){
+async function chat(question){
     addMsg(question,true);
-    addMsg("AI思考中...",false);
+    addMsg("AI回复中...",false);
     try{
-        const res = await fetch(API_URL,{
+        let res = await fetch(API,{
             method:"POST",
             headers:{
-                "Content-Type":"application/json",
-                "Authorization":`Bearer ${OPENAI_KEY}`
+                "Authorization":`Bearer ${DS_KEY}`,
+                "Content-Type":"application/json"
             },
             body:JSON.stringify({
-                model:"gpt-3.5-turbo",
-                messages:[{role:"user",content:question}],
-                temperature:0.7
+                model:"deepseek-chat",
+                messages:[{role:"user",content:question}]
             })
         })
-        const data = await res.json();
-        chatDom.lastChild.remove(); // 删除等待文字
-        addMsg(data.choices[0].message.content,false);
-    }catch(err){
-        chatDom.lastChild.innerText = "调用失败：密钥错误/额度不足/网络异常";
-        console.error(err)
+        let json = await res.json();
+        chatDom.lastChild.remove();
+        addMsg(json.choices[0].message.content,false);
+    }catch(e){
+        chatDom.lastChild.innerText="接口异常";
     }
 }
 
-// 绑定按钮和回车
 sendBtn.onclick = ()=>{
-    const val = inputDom.value.trim();
-    if(!val)return;
+    let val = inputDom.value.trim();
+    if(!val) return;
     inputDom.value = "";
-    askGPT(val);
+    chat(val);
 }
-inputDom.onkeydown = e=>{
-    if(e.key==="Enter")sendBtn.click();
-}
+inputDom.onkeydown = e=>e.key==='Enter'&&sendBtn.click();
 </script>
 </body>
 </html>
